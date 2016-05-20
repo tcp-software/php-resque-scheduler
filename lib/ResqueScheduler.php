@@ -50,7 +50,12 @@ class ResqueScheduler
 			'args'  => $args,
 		);
 
-		Resque_Event::trigger('beforeSchedule', $hookParams);
+		try {
+			Resque_Event::trigger('beforeSchedule', $hookParams);
+		}
+		catch(ResqueScheduler_DontCreate $e) {
+			return false;
+		}
 
 		$job = self::jobToHash($queue, $class, $args);
 		self::delayedPush($at, $job);
