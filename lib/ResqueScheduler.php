@@ -43,15 +43,19 @@ class ResqueScheduler
 	{
 		self::validateJob($class, $queue);
 
-		$job = self::jobToHash($queue, $class, $args);
-		self::delayedPush($at, $job);
-		
-		Resque_Event::trigger('afterSchedule', array(
+		$hookParams = array(
 			'at'    => $at,
 			'queue' => $queue,
 			'class' => $class,
 			'args'  => $args,
-		));
+		);
+
+		Resque_Event::trigger('beforeSchedule', $hookParams);
+
+		$job = self::jobToHash($queue, $class, $args);
+		self::delayedPush($at, $job);
+		
+		Resque_Event::trigger('afterSchedule', $hookParams);
 	}
 
 	/**
